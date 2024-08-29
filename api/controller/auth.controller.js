@@ -1,7 +1,7 @@
 import User from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
 import { generateJwtToken } from "../utils/generateToken.js";
-import { sendVarificationEmail } from "../mailtrap/emails.js";
+import { sendVarificationEmail, sendWelcomeEmail } from "../mailtrap/emails.js";
 
 export const signUp = async (req, res) => {
   const { email, password, name } = req.body;
@@ -51,6 +51,40 @@ export const signUp = async (req, res) => {
       });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const varifyEmail = async (req, res) => {
+  const { code } = req.body;
+  try {
+    const user = await User.findOne({
+      varificationToken: code,
+      varificationTokenExpiresAt: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "invalid or Expired varification code",
+      });
+    }
+    user.isVarified = true;
+    user.varificationToken = undefined;
+    user.varificationTokenExpiresAt = undefined;
+    await user.save();
+    await sendWelcomeEmail(user.email, user.name);
+
+    res.status(200).json({
+      success: true,
+      message: "user varified successfull",
+      use: {
+        ...user._doc,
+        password: undefined,
+      },
+    });
+  } catch (error) {
+    console.log("varify email error", error);
+    res.status(500).json({ success: false, message: "server error" });
   }
 };
 
