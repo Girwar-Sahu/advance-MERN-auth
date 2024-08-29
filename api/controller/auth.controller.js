@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
 import { generateJwtToken } from "../utils/generateToken.js";
+import { sendVarificationEmail } from "../mailtrap/emails.js";
 
 export const signUp = async (req, res) => {
   const { email, password, name } = req.body;
@@ -26,9 +27,12 @@ export const signUp = async (req, res) => {
       varificationToken,
       varificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, //24 hours
     });
-    
+
     await user.save();
-    const token = generateJwtToken(res, user._id); // generate JWT token
+    const token = generateJwtToken(res, user._id); // generate jwt token
+
+    await sendVarificationEmail(user.email, varificationToken);
+
     res
       .status(201)
       .cookie("token", token, {
@@ -45,7 +49,6 @@ export const signUp = async (req, res) => {
           password: undefined,
         },
       });
-
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
