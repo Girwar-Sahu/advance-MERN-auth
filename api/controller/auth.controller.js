@@ -29,7 +29,7 @@ export const signUp = async (req, res) => {
     });
 
     await user.save();
-    const token = generateJwtToken(res, user._id); // generate jwt token
+    const token = generateJwtToken(user._id); // generate jwt token
 
     await sendVarificationEmail(user.email, varificationToken);
 
@@ -89,9 +89,52 @@ export const varifyEmail = async (req, res) => {
 };
 
 export const signIn = async (req, res) => {
-  res.json("signin route");
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "invalid credentials" });
+    }
+
+    const isPasswordValid = await bcryptjs.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res
+        .status(400)
+        .json({ success: false, message: "invalid credentials" });
+    }
+
+    const token = generateJwtToken(user._id);
+
+    user.lastLogin = new Date();
+    await user.save();
+
+    res
+      .status(200)
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      })
+      .json({
+        success: true,
+        message: "Signed in successfully",
+        use: {
+          ...user._doc,
+          password: undefined,
+        },
+      });
+  } catch (error) {
+    console.log("error in login", error);
+    res.status(400).json({ success: false, message: error.message });
+  }
 };
 
 export const signOut = async (req, res) => {
-  res.json("signout route");
+  res
+    .clearCookie("token")
+    .status(200)
+    .json({ success: true, message: "signedout successfully" });
 };
