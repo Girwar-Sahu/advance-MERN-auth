@@ -35,6 +35,7 @@ function PasswordStrength({ password }) {
     if (pass.match(/[a-z]/) && pass.match(/[A-Z]/)) strength++;
     if (pass.match(/\d/)) strength++;
     if (pass.match(/[^A-Za-z\d]/)) strength++;
+    
     return strength;
   };
 
