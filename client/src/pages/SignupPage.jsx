@@ -2,16 +2,29 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import Input from "../components/Input";
 import { User, Mail, Lock, Loader } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PasswordStrength from "../components/PasswordStrength";
+import { useDispatch } from "react-redux";
+import { useSignUpMutation } from "../redux/api/apiSlice.js";
 
 function SignupPage() {
+  const [signUp, { isLoading }] = useSignUpMutation();
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const handleSingup = (e) => {
+  const [error, setError] = useState("");
+
+  const handleSingup = async (e) => {
     e.preventDefault();
+    try {
+      const result = await signUp({ name, email, password }).unwrap();
+      console.log(result);
+      navigate("/verify-email");
+    } catch (error) {
+      console.log("faild to sing up", error);
+      setError(error?.data?.message);
+    }
   };
 
   return (
@@ -47,6 +60,7 @@ function SignupPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          {error && <p className="text-red-500 font-semibold mt-2">{error}</p>}
           <PasswordStrength password={password} />
           <motion.button
             type="submit"

@@ -1,10 +1,29 @@
-import React from "react";
-import { Routes, Route } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import FloatingShape from "./components/FloatingShape";
 import SigninPage from "./pages/SigninPage";
 import SignupPage from "./pages/SignupPage";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
+import HomePage from "./pages/HomePage";
+import { useCheckAuthQuery } from "./redux/api/apiSlice.js";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "./redux/auth/authSlice.js";
+import PrivateRoute from "./components/PrivateRoute.jsx";
+import RedirectRoute from "./components/RedirectRoute.jsx";
+import LoadingSpinner from "./components/LoadingSpinner.jsx";
 
 function App() {
+  const dispatch = useDispatch();
+
+  const { data, isLoading } = useCheckAuthQuery();
+
+  useEffect(() => {
+    if (data?.user) {
+      dispatch(setUser(data.user));
+    }
+  }, [data, dispatch]);
+
+  if (isLoading) return <LoadingSpinner />;
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 flex justify-center items-center relative overflow-hidden">
       <FloatingShape
@@ -29,9 +48,14 @@ function App() {
         delay={2}
       />
       <Routes>
-        <Route path="/" element={"Home"} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/signin" element={<SigninPage />} />
+        <Route element={<PrivateRoute />}>
+          <Route path="/" element={<HomePage />} />
+        </Route>
+        <Route element={<RedirectRoute />}>
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/signin" element={<SigninPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+        </Route>
       </Routes>
     </div>
   );

@@ -19,7 +19,7 @@ export const signUp = async (req, res) => {
     if (userExist) {
       return res
         .status(400)
-        .json({ success: false, message: "user already exist" });
+        .json({ success: false, message: "User already exist" });
     }
     const hashPassword = await bcryptjs.hash(password, 10);
     const varificationToken = Math.floor(
@@ -50,7 +50,7 @@ export const signUp = async (req, res) => {
       .json({
         success: true,
         message: "user is created",
-        use: {
+        user: {
           ...user._doc,
           password: undefined,
         },
@@ -62,6 +62,8 @@ export const signUp = async (req, res) => {
 
 export const varifyEmail = async (req, res) => {
   const { code } = req.body;
+  console.log(code);
+
   try {
     const user = await User.findOne({
       varificationToken: code,
@@ -83,7 +85,7 @@ export const varifyEmail = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "user varified successfull",
-      use: {
+      user: {
         ...user._doc,
         password: undefined,
       },
@@ -127,7 +129,7 @@ export const signIn = async (req, res) => {
       .json({
         success: true,
         message: "Signed in successfully",
-        use: {
+        user: {
           ...user._doc,
           password: undefined,
         },
@@ -219,7 +221,6 @@ export const checkAuth = async (req, res) => {
         .status(404)
         .json({ success: false, message: "user not found" });
     }
-
     res.status(200).json({ success: true, user });
   } catch (error) {
     console.log("Error in checkAuth", error);

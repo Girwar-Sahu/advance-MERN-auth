@@ -1,15 +1,32 @@
-import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Lock, Loader } from "lucide-react";
+import { Loader, Lock, Mail } from "lucide-react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Input from "../components/Input";
+import { useDispatch } from "react-redux";
+import { useSignInMutation } from "../redux/api/apiSlice.js";
+import { useNavigate } from "react-router-dom";
+import { setUser } from "../redux/auth/authSlice.js";
 
 function SigninPage() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [signIn, { isLoading }] = useSignInMutation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const handleSingin = (e) => {
+  const [error, setError] = useState("");
+
+  const handleSingin = async (e) => {
     e.preventDefault();
+    try {
+      const result = await signIn({ email, password }).unwrap();
+      console.log(result);
+      dispatch(setUser(result.user));
+      navigate("/");
+    } catch (error) {
+      console.log("faild to sing in", error);
+      setError(error?.data?.message);
+    }
   };
 
   return (
@@ -46,6 +63,7 @@ function SigninPage() {
               Forgot password?
             </Link>
           </div>
+          {error && <p className="text-red-500">{error}</p>}
           <motion.button
             type="submit"
             className="mt-5 w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200"
@@ -53,7 +71,11 @@ function SigninPage() {
             whileTap={{ scale: 0.98 }}
             disabled={isLoading}
           >
-            {isLoading ? <Loader className="w-6 h-6 animate-spin text-center mx-auto" /> : "SignIn"}
+            {isLoading ? (
+              <Loader className="w-6 h-6 animate-spin text-center mx-auto" />
+            ) : (
+              "SignIn"
+            )}
           </motion.button>
         </form>
       </div>
