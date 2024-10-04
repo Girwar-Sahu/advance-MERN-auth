@@ -8,9 +8,12 @@ import HomePage from "./pages/HomePage";
 import { useCheckAuthQuery } from "./redux/api/apiSlice.js";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "./redux/auth/authSlice.js";
+import { Toaster } from "react-hot-toast";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import RedirectRoute from "./components/RedirectRoute.jsx";
 import LoadingSpinner from "./components/LoadingSpinner.jsx";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
+import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -55,8 +58,19 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/signin" element={<SigninPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route
+            path="/reset-password/:token"
+            element={<ResetPasswordPage />}
+          />
         </Route>
       </Routes>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 2000,
+        }}
+      />
     </div>
   );
 }

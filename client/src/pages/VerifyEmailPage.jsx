@@ -5,6 +5,7 @@ import { Loader } from "lucide-react";
 import { useVerifyEmailMutation } from "../redux/api/apiSlice.js";
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/auth/authSlice.js";
+import toast from "react-hot-toast";
 
 function VerifyEmailPage() {
   const [code, setCode] = useState(new Array(6).fill("")); // Initialize with 6 empty fields
@@ -49,6 +50,7 @@ function VerifyEmailPage() {
     try {
       const result = await verifyEmail({ varificationCode }).unwrap();
       dispatch(setUser(result.user));
+      toast.success("Email verified successfully");
       navigate("/");
     } catch (error) {
       console.log("faild to verify email", error);
