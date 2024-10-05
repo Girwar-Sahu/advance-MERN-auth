@@ -66,7 +66,7 @@ function ForgotPasswordPage() {
               {isLoading ? (
                 <Loader className="w-6 h-6 animate-spin text-center mx-auto" />
               ) : (
-                "Sign Up"
+                "Send Reset Link"
               )}
             </motion.button>
           </form>
