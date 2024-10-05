@@ -20,11 +20,9 @@ function SigninPage() {
     e.preventDefault();
     try {
       const result = await signIn({ email, password }).unwrap();
-      console.log(result);
       dispatch(setUser(result.user));
       navigate("/");
     } catch (error) {
-      console.log("faild to sing in", error);
       setError(error?.data?.message);
     }
   };
@@ -47,6 +45,7 @@ function SigninPage() {
             placeholder="Email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
           <Input
             icon={Lock}
@@ -54,6 +53,7 @@ function SigninPage() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
           <div className="flex items-center mb-5">
             <Link

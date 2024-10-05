@@ -1,16 +1,29 @@
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+dotenv.config();
 import {
   PASSWORD_RESET_REQUEST_TEMPLATE,
   PASSWORD_RESET_SUCCESS_TEMPLATE,
   VERIFICATION_EMAIL_TEMPLATE,
+  WELCOME_EMAIL_TEMPLATE,
 } from "./emailTamplates.js";
-import { client, sender } from "./mailtrap.config.js";
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.GMAIL_ID,
+    pass: process.env.GMAIL_KEY,
+  },
+});
 
 export const sendVarificationEmail = async (email, varificationToken) => {
-  const recipient = [{ email }];
   try {
-    const response = await client.send({
-      from: sender,
-      to: recipient,
+    const response = await transporter.sendMail({
+      from: `MERN Auth <${process.env.GMAIL_ID}>`,
+      to: email,
       subject: "Varify your email",
       html: VERIFICATION_EMAIL_TEMPLATE.replace(
         "{verificationCode}",
@@ -18,7 +31,7 @@ export const sendVarificationEmail = async (email, varificationToken) => {
       ),
       category: "Email Varification",
     });
-    console.log("email send successfully", response);
+    // console.log("email send successfully", response.messageId);
   } catch (error) {
     console.error(`error sending varification`, error);
     throw new Error(`error sending varification email: ${error.message}`);
@@ -26,18 +39,15 @@ export const sendVarificationEmail = async (email, varificationToken) => {
 };
 
 export const sendWelcomeEmail = async (email, name) => {
-  const recipient = [{ email }];
   try {
-    const response = await client.send({
-      from: sender,
-      to: recipient,
-      template_uuid: process.env.MAILTRAP_TAMPLATE_ID,
-      template_variables: {
-        name: name,
-      },
+    const response = await transporter.sendMail({
+      from: `MERN Auth <${process.env.GMAIL_ID}>`,
+      to: email,
+      subject: "Welcome to our MERN Auth App",
+      html: WELCOME_EMAIL_TEMPLATE.replace("{clientName}", name),
+      category: "Welcome Email",
     });
-
-    console.log("welcome email send successfully", response);
+    // console.log("welcome email send successfully", response.messageId);
   } catch (error) {
     console.error(`error sending welcome`, error);
     throw new Error(`error sending welcome email: ${error.message}`);
@@ -45,16 +55,15 @@ export const sendWelcomeEmail = async (email, name) => {
 };
 
 export const sendPasswordResetEmail = async (email, resetURL) => {
-  const recipient = [{ email }];
   try {
-    const response = await client.send({
-      from: sender,
-      to: recipient,
+    const response = await transporter.sendMail({
+      from: `MERN Auth <${process.env.GMAIL_ID}>`,
+      to: email,
       subject: "Reset your password",
       html: PASSWORD_RESET_REQUEST_TEMPLATE.replace("{resetURL}", resetURL),
       category: "Password reset",
     });
-    console.log("reset url email sent successfully", response);
+    // console.log("reset url email sent successfully", response.messageId);
   } catch (error) {
     console.error(`error sending reset url link`, error);
     throw new Error(`Error sending password reset email:${error}`);
@@ -62,16 +71,15 @@ export const sendPasswordResetEmail = async (email, resetURL) => {
 };
 
 export const sendResetSuccessEmail = async (email) => {
-  const recipient = [{ email }];
   try {
-    const response = await client.send({
-      from: sender,
-      to: recipient,
+    const response = await transporter.sendMail({
+      from: `MERN Auth <${process.env.GMAIL_ID}>`,
+      to: email,
       subject: "Password reset successful",
       html: PASSWORD_RESET_SUCCESS_TEMPLATE,
       category: "Password reset",
     });
-    console.log(`reset password success send successful`, response);
+    // console.log(`reset password success send successful`, response.messageId);
   } catch (error) {
     console.error(`error sending reset password success`, error);
     throw new Error(`Error sending password reset email:${error}`);

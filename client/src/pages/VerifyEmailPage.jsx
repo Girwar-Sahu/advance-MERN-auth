@@ -53,7 +53,6 @@ function VerifyEmailPage() {
       toast.success("Email verified successfully");
       navigate("/");
     } catch (error) {
-      console.log("faild to verify email", error);
       setError(error?.data?.message);
     }
   };

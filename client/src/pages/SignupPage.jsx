@@ -19,10 +19,9 @@ function SignupPage() {
     e.preventDefault();
     try {
       const result = await signUp({ name, email, password }).unwrap();
-      console.log(result);
+      console.log(result.user);
       navigate("/verify-email");
     } catch (error) {
-      console.log("faild to sing up", error);
       setError(error?.data?.message);
     }
   };
@@ -45,6 +44,7 @@ function SignupPage() {
             placeholder="Full Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required
           />
           <Input
             icon={Mail}
@@ -52,6 +52,7 @@ function SignupPage() {
             placeholder="Email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
           <Input
             icon={Lock}
@@ -59,6 +60,7 @@ function SignupPage() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
           {error && <p className="text-red-500 font-semibold mt-2">{error}</p>}
           <PasswordStrength password={password} />

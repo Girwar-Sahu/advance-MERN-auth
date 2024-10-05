@@ -14,11 +14,11 @@ export const verifyToken = async (req, res, next) => {
         .status(401)
         .json({ success: false, message: "unauthorized - invalid token" });
     }
-    console.log("decode", decode);
+    // console.log("decode", decode);
     req.user = decode.userId;
     next();
   } catch (error) {
-    console.log("error on verify user", error);
+    // console.log("error on verify user", error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };

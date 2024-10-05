@@ -6,6 +6,7 @@ import Input from "../components/Input";
 import { Link } from "react-router-dom";
 
 function ForgotPasswordPage() {
+  const [error, setError] = useState("");
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
@@ -13,10 +14,11 @@ function ForgotPasswordPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const result = await forgotPassword({ email }).unwrap();
+      await forgotPassword({ email }).unwrap();
       setIsSubmitted(true);
     } catch (error) {
       console.log(error?.data?.message);
+      setError(error?.data?.message);
     }
   };
   return (
@@ -53,6 +55,7 @@ function ForgotPasswordPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+            {error && <p className="text-red-500">{error}</p>}
             <motion.button
               type="submit"
               className="mt-5 w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200"

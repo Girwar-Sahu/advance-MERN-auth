@@ -24,7 +24,6 @@ function ResetPasswordPage() {
       toast.success("Password reset successfully");
       navigate("/signin");
     } catch (error) {
-      console.log(error?.data?.message);
       setError(error?.data?.message);
     }
   };

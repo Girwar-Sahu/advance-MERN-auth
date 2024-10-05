@@ -4,8 +4,7 @@ import { Outlet, Navigate } from "react-router-dom";
 
 function PrivateRoute() {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
-  console.log(user);
-
+ 
   return isAuthenticated ? (
     user.isVarified ? (
       <Outlet />

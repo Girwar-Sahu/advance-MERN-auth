@@ -12,13 +12,13 @@ function HomePage() {
   const { user } = useSelector((state) => state.auth);
   const [signOut, { isLoading }] = useSignOutMutation();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     try {
-      signOut();
+      await signOut().unwrap();
       dispatch(clearUser());
       navigate("/signin");
     } catch (error) {
-      console.log("signout error", error);
+      console.log(error?.data?.message);
     }
   };
   return (

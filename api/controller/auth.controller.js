@@ -7,7 +7,7 @@ import {
   sendWelcomeEmail,
   sendPasswordResetEmail,
   sendResetSuccessEmail,
-} from "../mailtrap/emails.js";
+} from "../nodemailer/emails.js";
 
 export const signUp = async (req, res) => {
   const { email, password, name } = req.body;
@@ -31,7 +31,7 @@ export const signUp = async (req, res) => {
       password: hashPassword,
       name,
       varificationToken,
-      varificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, //24 hours
+      varificationTokenExpiresAt: Date.now() + 5 * 60 * 60 * 1000, //24 hours
     });
 
     await user.save();
@@ -53,6 +53,10 @@ export const signUp = async (req, res) => {
         user: {
           ...user._doc,
           password: undefined,
+          resetPasswordToken: undefined,
+          resetPasswordExpiresAt: undefined,
+          varificationToken: undefined,
+          varificationTokenExpiresAt: undefined,
         },
       });
   } catch (error) {
@@ -62,7 +66,6 @@ export const signUp = async (req, res) => {
 
 export const varifyEmail = async (req, res) => {
   const { code } = req.body;
-  console.log(code);
 
   try {
     const user = await User.findOne({
@@ -88,10 +91,14 @@ export const varifyEmail = async (req, res) => {
       user: {
         ...user._doc,
         password: undefined,
+        resetPasswordToken: undefined,
+        resetPasswordExpiresAt: undefined,
+        varificationToken: undefined,
+        varificationTokenExpiresAt: undefined,
       },
     });
   } catch (error) {
-    console.log("varify email error", error);
+    // console.log("varify email error", error);
     res.status(500).json({ success: false, message: "server error" });
   }
 };
@@ -132,10 +139,14 @@ export const signIn = async (req, res) => {
         user: {
           ...user._doc,
           password: undefined,
+          resetPasswordToken: undefined,
+          resetPasswordExpiresAt: undefined,
+          varificationToken: undefined,
+          varificationTokenExpiresAt: undefined,
         },
       });
   } catch (error) {
-    console.log("error in login", error);
+    // console.log("error in login", error);
     res.status(400).json({ success: false, message: error.message });
   }
 };
@@ -176,7 +187,7 @@ export const forgotPassword = async (req, res) => {
       message: "Password reset link sent to your email",
     });
   } catch (error) {
-    console.log("Error in forgot password", error);
+    // console.log("Error in forgot password", error);
     res.status(400).json({ success: false, message: error.message });
   }
 };
@@ -208,14 +219,16 @@ export const resetPassword = async (req, res) => {
       .status(200)
       .json({ success: true, message: "password reset successful" });
   } catch (error) {
-    console.log("error in reset password", error);
+    // console.log("error in reset password", error);
     res.status(400).json({ success: false, message: error.message });
   }
 };
 
 export const checkAuth = async (req, res) => {
   try {
-    const user = await User.findById(req.user).select("-password");
+    const user = await User.findById(req.user).select(
+      "-password -resetPasswordToken -resetPasswordExpiresAt -varificationToken -varificationTokenExpiresAt"
+    );
     if (!user) {
       return res
         .status(404)
@@ -223,7 +236,7 @@ export const checkAuth = async (req, res) => {
     }
     res.status(200).json({ success: true, user });
   } catch (error) {
-    console.log("Error in checkAuth", error);
+    // console.log("Error in checkAuth", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
