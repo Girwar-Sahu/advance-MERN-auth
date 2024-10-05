@@ -9,6 +9,7 @@ import { useCheckAuthQuery } from "./redux/api/apiSlice.js";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "./redux/auth/authSlice.js";
 import { Toaster } from "react-hot-toast";
+import NotFoundPage from "./pages/NotFoundPage.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import RedirectRoute from "./components/RedirectRoute.jsx";
 import LoadingSpinner from "./components/LoadingSpinner.jsx";
@@ -51,6 +52,7 @@ function App() {
         delay={2}
       />
       <Routes>
+        <Route path="*" element={<NotFoundPage />} />
         <Route element={<PrivateRoute />}>
           <Route path="/" element={<HomePage />} />
         </Route>
